@@ -1,10 +1,7 @@
 from datasets import load_dataset
 import torch
 from torch import optim
-from transformers import (
-    logging, CLIPConfig, CLIPModel, CLIPProcessor,
-    CLIPTextConfig, CLIPVisionConfig
-)
+from transformers import logging, VisionTextDualEncoderModel, VisionTextDualEncoderProcessor, BertTokenizer, ViTFeatureExtractor
 from tqdm import tqdm
 import time
 
@@ -14,8 +11,9 @@ logging.set_verbosity_error()
 ds = load_dataset("Magneto/caption_for_mars_and_rover_image_size_768")
 
 class CFG:
-    model_name = "openai/clip-vit-base-patch32"
-    max_text_tokens_length = 77  # CLIP's default max length
+    max_text_tokens_length = 128
+    text_backbone = 'bert-base-uncased'
+    image_backbone = 'google/vit-base-patch16-224'
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     batch_size = 32
     max_epochs = 75
@@ -46,20 +44,19 @@ class DataSet(torch.utils.data.Dataset):
             if len(image.mode) == 1 or image.mode == 'L':
                 image = image.convert('RGB')
             
-            # Process image and text
-            inputs = self.processor(
-                text=caption,
-                images=image,
-                return_tensors="pt",
-                padding="max_length",
-                max_length=CFG.max_text_tokens_length,
+            encoded_pair = self.processor(
+                text=[caption], 
+                images=[image], 
+                return_tensors="pt", 
+                max_length=CFG.max_text_tokens_length, 
+                padding='max_length', 
                 truncation=True
             )
             
             return {
-                'input_ids': inputs['input_ids'].squeeze(0),
-                'attention_mask': inputs['attention_mask'].squeeze(0),
-                'pixel_values': inputs['pixel_values'].squeeze(0)
+                'input_ids': encoded_pair['input_ids'].squeeze(0),
+                'attention_mask': encoded_pair['attention_mask'].squeeze(0),
+                'pixel_values': encoded_pair['pixel_values'].squeeze(0)
             }
         except Exception as e:
             print(f"Error processing item {idx}: {e}")
@@ -79,7 +76,7 @@ def train_epoch(model, train_loader, optimizer, epoch, max_epochs):
     epoch_loss = 0.0
     
     for i, batch in enumerate(tqdm_object):
-        optimizer.zero_grad()
+        optimizer.zero_grad()  # Added this line
         outputs = model(
             input_ids=batch['input_ids'].to(CFG.device),
             attention_mask=batch['attention_mask'].to(CFG.device),
@@ -129,16 +126,18 @@ def get_lr(optimizer):
         return param_group["lr"]
 
 def main():
-    # Initialize CLIP configurations
-    print("Initializing CLIP configurations...")
-    config_text = CLIPTextConfig.from_pretrained(CFG.model_name)
-    config_vision = CLIPVisionConfig.from_pretrained(CFG.model_name)
-    config = CLIPConfig.from_text_vision_configs(config_text, config_vision)
+    # Initialize custom processor
+    print("Initializing tokenizer and feature extractor...")
+    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    feature_extractor = ViTFeatureExtractor.from_pretrained("google/vit-base-patch16-224")
+    processor = VisionTextDualEncoderProcessor(feature_extractor, tokenizer)
     
-    # Initialize CLIP model and processor
-    print("Initializing CLIP model and processor...")
-    model = CLIPModel(config)
-    processor = CLIPProcessor.from_pretrained(CFG.model_name)
+    # Initialize CLIP model
+    print("Initializing CLIP model...")
+    clip = VisionTextDualEncoderModel.from_vision_text_pretrained(
+        CFG.image_backbone,
+        CFG.text_backbone
+    )
     
     # Prepare datasets
     train_pairs = read_mars_rover_pairs('train')
@@ -164,8 +163,8 @@ def main():
     )
     
     # Training setup
-    model.to(CFG.device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
+    clip.to(CFG.device)
+    optimizer = torch.optim.AdamW(clip.parameters(), lr=5e-5)
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, 
         mode="min", 
@@ -190,8 +189,8 @@ def main():
         
         epoch_start_time = time.time()
         
-        train_loss = train_epoch(model, train_loader, optimizer, epoch, CFG.max_epochs)
-        val_loss = valid_epoch(model, val_loader)
+        train_loss = train_epoch(clip, train_loader, optimizer, epoch, CFG.max_epochs)
+        val_loss = valid_epoch(clip, val_loader)
         
         duration = time.time() - epoch_start_time
         
@@ -202,7 +201,7 @@ def main():
         
         if val_loss < best_dev_score:
             best_dev_score = val_loss
-            torch.save(model.state_dict(), "best_model.pt")
+            torch.save(clip.state_dict(), "best_model.pt")
             nb_bad_epochs = 0
             print(f"New best model saved! Val Loss: {val_loss:.4f}")
         else:
