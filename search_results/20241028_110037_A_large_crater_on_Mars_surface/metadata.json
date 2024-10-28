@@ -1,0 +1,41 @@
+{
+  "query": "A large crater on Mars surface",
+  "timestamp": "20241028_110037",
+  "results": [
+    {
+      "filename": "result_1.jpg",
+      "score": 0.829119086265564,
+      "short_caption": "NASA's Mars Global Surveyor shows a crater on northern Elysium Planitia on Mars, a little more than twice the diameter of the famous Meteor Crater in Arizona, U.S.A. It formed by the impact and subsequent explosion of a meteorite.",
+      "long_caption": "This crater on northern Elysium Planitia is a little more than twice the diameter of the famous Meteor Crater in Arizona, U.S.A. It formed by the impact and subsequent explosion of a meteorite. Picture from MOC in July 1998.",
+      "url": "https://photojournal.jpl.nasa.gov/catalog/PIA02084"
+    },
+    {
+      "filename": "result_2.jpg",
+      "score": 0.8045498132705688,
+      "short_caption": "NASA's Mars Global Surveyor shows an impact crater and associated bright wind streak in Acidalia Planitia on Mars. Dozens of smaller craters dot the scene.",
+      "long_caption": "This Mars Global Surveyor (MGS) Orbiter Camera (MOC) image shows an impact crater and associated bright wind streak in Acidalia Planitia. Dozens of smaller craters dot the scene.Location near: 33.6°N, 25.0°W Image width: ~3.0 km (~1.9 mi) Illumination from: lower left Season: Northern Summer",
+      "url": "https://photojournal.jpl.nasa.gov/catalog/PIA07373"
+    },
+    {
+      "filename": "result_3.jpg",
+      "score": 0.783376932144165,
+      "short_caption": "NASA's Mars Global Surveyor shows an impact crater with large boulders along its rim. The crater is located in Tempe Terra on Mars.",
+      "long_caption": "12 June 2005This Mars Global Surveyor (MGS) Mars Orbiter Camera (MOC) image shows an impact crater with large boulders along its rim. The crater is located in Tempe Terra.Location near: 36.6°N, 88.9°W Image width: ~3 km (~1.9 mi Illumination from: lower left Season: Northern Autumn",
+      "url": "https://photojournal.jpl.nasa.gov/catalog/PIA03945"
+    },
+    {
+      "filename": "result_4.jpg",
+      "score": 0.779447078704834,
+      "short_caption": "NASA's Mars Global Surveyor shows vast layered rock in eastern Arabia Terra on Mars within which are interbedded filled and buried craters and valleys.",
+      "long_caption": "26 August 2004Eastern Arabia Terra shares many attributes with western Arabia and Sinus Meridiani. In particular, it is a region of vast layered rock within which are interbedded filled and buried craters and valleys. Erosion has subsequently re-exposed many of these landforms, including the exhumed and eroded crater shown in this Mars Global Surveyor (MGS) Mars Orbiter Camera (MOC) image. Following the period in which erosion occurred, the region was blanketed by dust. This image is located near 22.5°N, 318.4°W, and covers an area about 3 km (1.9 mi) across. Sunlight illuminates the scene from the left/lower left.",
+      "url": "https://photojournal.jpl.nasa.gov/catalog/PIA06816"
+    },
+    {
+      "filename": "result_5.jpg",
+      "score": 0.7683425545692444,
+      "short_caption": "This NASA Mars Global Surveyor image shows a 1.5 meters (~5 feet) per pixel view of a crater in the Terra Cimmeria region of Mars. Several gullies extend from near the top of the crater rim, downslope toward the floor of the crater.",
+      "long_caption": "17 April 2006This Mars Global Surveyor (MGS) Mars Orbiter Camera (MOC) image shows a 1.5 meters (~5 feet) per pixel view of a crater in the Terra Cimmeria region of Mars. Several gullies extend from near the top of the crater rim, downslope toward the floor of the crater. Liquid water might have played a role in their genesis.Location near: 37.7°S, 191.6°W Image width: ~3 km (~1.9 mi) Illumination from: upper left Season: Southern Summer",
+      "url": "https://photojournal.jpl.nasa.gov/catalog/PIA08078"
+    }
+  ]
+}
