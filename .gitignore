@@ -2,3 +2,4 @@ outputs/
 venv/
 search_results/
 logs/
+vision_text_search_results/

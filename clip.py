@@ -7,6 +7,11 @@ from transformers import (
 )
 from tqdm import tqdm
 import time
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import torch.nn.functional as F
+import Path
 
 logging.set_verbosity_error()
 
@@ -72,6 +77,49 @@ def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 
+def visualize_similarity_matrix(model, batch, batch_idx, epoch):
+    """Visualize the similarity matrix for a batch"""
+    model.eval()
+    with torch.no_grad():
+        # Get features
+        text_features = model.get_text_features(
+            input_ids=batch['input_ids'].to(CFG.device),
+            attention_mask=batch['attention_mask'].to(CFG.device)
+        )
+        image_features = model.get_image_features(
+            pixel_values=batch['pixel_values'].to(CFG.device)
+        )
+        
+        # Normalize features
+        text_embeds = F.normalize(text_features, dim=-1)
+        image_embeds = F.normalize(image_features, dim=-1)
+        
+        # Calculate similarity matrix
+        similarity = torch.matmul(text_embeds, image_embeds.t())
+        
+        # Convert to numpy for visualization
+        similarity_matrix = similarity.cpu().numpy()
+        
+        # Create figure
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(similarity_matrix, 
+                   cmap='coolwarm', 
+                   center=0,
+                   annot=True, 
+                   fmt='.2f',
+                   xticklabels=[f'Image {i+1}' for i in range(similarity_matrix.shape[1])],
+                   yticklabels=[f'Text {i+1}' for i in range(similarity_matrix.shape[0])])
+        
+        plt.title(f'Similarity Matrix (Epoch {epoch}, Batch {batch_idx})')
+        plt.xlabel('Images')
+        plt.ylabel('Texts')
+        
+        # Save the plot
+        save_dir = Path('similarity_matrices')
+        save_dir.mkdir(exist_ok=True)
+        plt.savefig(save_dir / f'similarity_matrix_epoch{epoch}_batch{batch_idx}.png')
+        plt.close()
+
 def train_epoch(model, train_loader, optimizer, epoch, max_epochs):
     model.train()
     nb_batches = len(train_loader)
@@ -91,6 +139,10 @@ def train_epoch(model, train_loader, optimizer, epoch, max_epochs):
         epoch_loss += loss.item()
         loss.backward()
         optimizer.step()
+        
+        # Visualize similarity matrix every 100 batches
+        if i % 100 == 0:
+            visualize_similarity_matrix(model, batch, i, epoch)
         
         tqdm_object.set_postfix(
             batch=f"{i+1}/{nb_batches}",

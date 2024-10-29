@@ -133,7 +133,7 @@ def main():
     processor = VisionTextDualEncoderProcessor(feature_extractor, tokenizer)
     
     # Initialize CLIP model
-    print("Initializing CLIP model...")
+    print("Initializing VisionTextDualEncoder model...")
     clip = VisionTextDualEncoderModel.from_vision_text_pretrained(
         CFG.image_backbone,
         CFG.text_backbone

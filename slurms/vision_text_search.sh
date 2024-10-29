@@ -45,7 +45,7 @@ pip list
 nvidia-smi > $LOG_DIR/gpu_info.txt 2>&1
 
 # Run search
-python vision_text_search.py > $LOG_DIR/search_output.txt 2>&1
+python vision_text_search.py > $LOG_DIR/vision_text_search_output.txt 2>&1
 
 # Deactivate virtual environment
 deactivate
@@ -53,7 +53,7 @@ deactivate
 # Copy results back
 mkdir -p /uufs/chpc.utah.edu/common/home/$USER/clip_project/vision_text_search_results/
 cp -r $SEARCH_DIR/* /uufs/chpc.utah.edu/common/home/$USER/clip_project/vision_text_search_results/
-cp $LOG_DIR/search_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
+cp $LOG_DIR/vision_text_search_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
 cp $LOG_DIR/gpu_info.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
 
 echo "Job finished on $(date)"

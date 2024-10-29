@@ -1,15 +1,12 @@
 torch
-torchvision
 transformers
 datasets
 tqdm
-Pillow
-numpy
-scikit-learn
 matplotlib
-huggingface-hub
-tokenizers
-requests
+seaborn
+numpy
+pillow
+path
 
 
 

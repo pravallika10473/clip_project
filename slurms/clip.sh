@@ -10,52 +10,68 @@
 #SBATCH --error=/scratch/general/vast/u1475870/clip_project/logs/%j/%j_clip_training.err
 #SBATCH --mail-user=pravallikaslurm@gmail.com
 #SBATCH --mail-type=END,FAIL
+#SBATCH --requeue
+#SBATCH --open-mode=append
 
-# Create a unique directory for this job in scratch space
+# Create directories
 SCRATCH_DIR="/scratch/general/vast/u1475870/clip_project/"
 LOG_DIR="$SCRATCH_DIR/logs/$SLURM_JOB_ID"
 mkdir -p $LOG_DIR
+mkdir -p "$SCRATCH_DIR/similarity_matrices"
 
-echo "Job started on $(date)"
+echo "Job started/resumed on $(date)"
 echo "Running on node: $SLURMD_NODENAME"
-echo "Log directory: $LOG_DIR"
 
-# Set up scratch directory for the job 
+# Set up scratch directory
 cd $SCRATCH_DIR
 
-# Copy the script from home to scratch
-cp /uufs/chpc.utah.edu/common/home/$USER/clip_project/clip.py .
-
-# Load required modules first
-module load cuda
-module load cudnn
-
-# Activate the virtual environment (assuming it's created with venv)
-source /uufs/chpc.utah.edu/common/home/$USER/clip_project/venv/bin/activate
-
-# Print Python and environment info for debugging
-which python
-python --version
-pip list
-
-# Check GPU availability
-nvidia-smi > $LOG_DIR/gpu_info.txt 2>&1
-if [ $? -eq 0 ]; then
-    echo "GPU is available" >> $LOG_DIR/gpu_info.txt
-else
-    echo "GPU is not available" >> $LOG_DIR/gpu_info.txt
+# Copy necessary files
+if [ ! -f clip.py ]; then
+    cp /uufs/chpc.utah.edu/common/home/$USER/clip_project/clip.py .
+    cp /uufs/chpc.utah.edu/common/home/$USER/clip_project/requirements.txt .
 fi
 
-# Run the CLIP training script
-python clip.py > $LOG_DIR/clip_training_output.txt 2>&1
+# Load required modules
+module purge
+module load cuda/11.1.1
+module load cudnn
 
-# Deactivate the virtual environment
+# Activate virtual environment
+source /uufs/chpc.utah.edu/common/home/$USER/clip_project/venv/bin/activate
+
+# Install required packages
+echo "Installing required packages..."
+pip install -r requirements.txt
+
+# Print environment info
+echo "Python path: $(which python)"
+echo "Python version: $(python --version)"
+echo "Pip packages:"
+pip list
+
+# Check GPU and save info
+nvidia-smi > $LOG_DIR/gpu_info.txt 2>&1
+echo "GPU Info saved to: $LOG_DIR/gpu_info.txt"
+
+# Run training with real-time output
+echo "Starting training..."
+python clip.py 2>&1 | tee $LOG_DIR/training_output.txt
+
+# Check if training completed successfully
+if [ $? -eq 0 ]; then
+    echo "Training completed successfully"
+    
+    # Copy results back
+    mkdir -p /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
+    cp best_model.pt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
+    cp -r similarity_matrices /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
+    cp $LOG_DIR/training_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
+    cp $LOG_DIR/gpu_info.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
+else
+    echo "Training was interrupted, job will be requeued if possible"
+fi
+
+# Deactivate virtual environment
 deactivate
 
-# Copy results back to the home directory
-mkdir -p /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
-cp $LOG_DIR/clip_training_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
-cp $LOG_DIR/gpu_info.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
-cp best_model.pt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
-
-echo "Job finished on $(date)"
+echo "Job ended on $(date)"

@@ -51,7 +51,7 @@ else
 fi
 
 # Run the search script
-python search_images.py > $LOG_DIR/search_output.txt 2>&1
+python search_images.py > $LOG_DIR/clip_search_output.txt 2>&1
 
 # Deactivate the virtual environment
 deactivate
@@ -59,7 +59,7 @@ deactivate
 # Copy results back to the home directory
 mkdir -p /uufs/chpc.utah.edu/common/home/$USER/clip_project/search_results/
 cp -r $SEARCH_DIR/* /uufs/chpc.utah.edu/common/home/$USER/clip_project/search_results/
-cp $LOG_DIR/search_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
+cp $LOG_DIR/clip_search_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
 cp $LOG_DIR/gpu_info.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
 
 echo "Job finished on $(date)"
