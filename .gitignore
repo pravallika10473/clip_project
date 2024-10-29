@@ -3,3 +3,4 @@ venv/
 search_results/
 logs/
 vision_text_search_results/
+clip_search_results/

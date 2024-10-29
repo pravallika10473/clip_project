@@ -10,7 +10,7 @@ from datetime import datetime
 from clip import CFG
 
 class ImageSearcher:
-    def __init__(self, model_path="outputs/best_model.pt", output_dir="search_outputs"):
+    def __init__(self, model_path="outputs/clip_best_model.pt", output_dir="clip_search_outputs"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Using device: {self.device}")
         self.output_dir = Path(output_dir)
@@ -178,9 +178,9 @@ def main():
     run_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     
     # Initialize the searcher with run-specific output directory
-    output_dir = Path(f"/scratch/general/vast/u1475870/clip_project/search_results/{run_timestamp}")
+    output_dir = Path(f"/scratch/general/vast/u1475870/clip_project/clip_search_results/{run_timestamp}")
     searcher = ImageSearcher(
-        model_path="/uufs/chpc.utah.edu/common/home/u1475870/clip_project/outputs/best_model.pt",
+        model_path="/uufs/chpc.utah.edu/common/home/u1475870/clip_project/outputs/clip_best_model.pt",
         output_dir=output_dir
     )
     

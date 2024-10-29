@@ -14,7 +14,7 @@
 # Create a unique directory for this job in scratch space
 SCRATCH_DIR="/scratch/general/vast/u1475870/clip_project/"
 LOG_DIR="$SCRATCH_DIR/logs/$SLURM_JOB_ID"
-SEARCH_DIR="$SCRATCH_DIR/search_results"
+SEARCH_DIR="$SCRATCH_DIR/clip_search_results"
 mkdir -p $LOG_DIR
 mkdir -p $SEARCH_DIR
 
@@ -26,9 +26,8 @@ echo "Log directory: $LOG_DIR"
 cd $SCRATCH_DIR
 
 # Copy the necessary files from home to scratch
-cp /uufs/chpc.utah.edu/common/home/$USER/clip_project/search_images.py .
-cp /uufs/chpc.utah.edu/common/home/$USER/clip_project/clip.py .
-cp /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/best_model.pt outputs/
+cp /uufs/chpc.utah.edu/common/home/$USER/clip_project/clip_search_images.py .
+cp /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/clip_best_model.pt outputs/
 
 # Load required modules first
 module load cuda
@@ -51,14 +50,14 @@ else
 fi
 
 # Run the search script
-python search_images.py > $LOG_DIR/clip_search_output.txt 2>&1
+python clip_search_images.py > $LOG_DIR/clip_search_output.txt 2>&1
 
 # Deactivate the virtual environment
 deactivate
 
 # Copy results back to the home directory
-mkdir -p /uufs/chpc.utah.edu/common/home/$USER/clip_project/search_results/
-cp -r $SEARCH_DIR/* /uufs/chpc.utah.edu/common/home/$USER/clip_project/search_results/
+mkdir -p /uufs/chpc.utah.edu/common/home/$USER/clip_project/clip_search_results/
+cp -r $SEARCH_DIR/* /uufs/chpc.utah.edu/common/home/$USER/clip_project/clip_search_results/
 cp $LOG_DIR/clip_search_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
 cp $LOG_DIR/gpu_info.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
 
