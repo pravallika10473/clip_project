@@ -2,40 +2,46 @@ import torch
 from datasets import load_dataset
 import torch.nn.functional as F
 from transformers import VisionTextDualEncoderModel, VisionTextDualEncoderProcessor, BertTokenizer, ViTFeatureExtractor
-import os
 from pathlib import Path
+import os
 from PIL import Image
 import json
 from datetime import datetime
-from clip import CFG  # Import your configuration
+
+# Define configuration for Vision-Text model
+class VisionTextConfig:
+    text_backbone = 'bert-base-uncased'
+    image_backbone = 'google/vit-base-patch16-224'
+    max_text_tokens_length = 128
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class ImageSearcher:
-    def __init__(self, model_path="outputs/best_model.pt", output_dir="search_results"):
+    def __init__(self, model_path="outputs/vision_text_best_model.pt", output_dir="search_results"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Using device: {self.device}")
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Load dataset - Changed to test split
+        # Load dataset
         print("Loading dataset...")
         self.ds = load_dataset("Magneto/caption_for_mars_and_rover_image_size_768")
-        self.dataset = self.ds['test']  # Changed from 'validation' to 'test'
+        self.dataset = self.ds['test']
         print(f"Loaded {len(self.dataset)} test images")
         
-        # Initialize tokenizer and feature extractor separately
+        # Initialize processors
         print("Initializing processors...")
-        self.tokenizer = BertTokenizer.from_pretrained(CFG.text_backbone)
-        self.feature_extractor = ViTFeatureExtractor.from_pretrained(CFG.image_backbone)
+        self.tokenizer = BertTokenizer.from_pretrained(VisionTextConfig.text_backbone)
+        self.feature_extractor = ViTFeatureExtractor.from_pretrained(VisionTextConfig.image_backbone)
         self.processor = VisionTextDualEncoderProcessor(self.feature_extractor, self.tokenizer)
         
-        # Initialize the model architecture
+        # Initialize model
         print("Loading model...")
         self.model = VisionTextDualEncoderModel.from_vision_text_pretrained(
-            CFG.image_backbone,
-            CFG.text_backbone
+            VisionTextConfig.image_backbone,
+            VisionTextConfig.text_backbone
         )
         
-        # Load your trained weights
+        # Load trained weights
         print(f"Loading weights from {model_path}...")
         state_dict = torch.load(model_path, map_location=self.device)
         self.model.load_state_dict(state_dict)
@@ -88,7 +94,7 @@ class ImageSearcher:
             return_tensors="pt",
             padding=True,
             truncation=True,
-            max_length=CFG.max_text_tokens_length
+            max_length=VisionTextConfig.max_text_tokens_length
         )
         
         with torch.no_grad():
@@ -168,8 +174,8 @@ def main():
     
     # Initialize the searcher
     searcher = ImageSearcher(
-        model_path="/uufs/chpc.utah.edu/common/home/u1475870/clip_project/outputs/best_model.pt",  
-        output_dir="/scratch/general/vast/u1475870/clip_project/search_results"
+        model_path="/uufs/chpc.utah.edu/common/home/u1475870/clip_project/outputs/vision_text_best_model.pt",  
+        output_dir="/scratch/general/vast/u1475870/clip_project/vision_text_search_results"
     )
     
     # Example searches

@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --account=soc-gpu-np
-#SBATCH --partition=soc-gpu-np
+#SBATCH --account=yqu-gpu-np
+#SBATCH --partition=yqu-gpu-np
 #SBATCH --job-name=mars_clip_training
 #SBATCH --time=12:00:00
 #SBATCH --ntasks=8
@@ -55,7 +55,7 @@ echo "GPU Info saved to: $LOG_DIR/gpu_info.txt"
 
 # Run training with real-time output
 echo "Starting training..."
-python clip.py 2>&1 | tee $LOG_DIR/training_output.txt
+python ~/clip_project/clip.py 2>&1 | tee $LOG_DIR/clip_training_output.txt
 
 # Check if training completed successfully
 if [ $? -eq 0 ]; then
@@ -63,9 +63,9 @@ if [ $? -eq 0 ]; then
     
     # Copy results back
     mkdir -p /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
-    cp best_model.pt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
+    cp clip_best_model.pt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
     cp -r similarity_matrices /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
-    cp $LOG_DIR/training_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
+    cp $LOG_DIR/clip_training_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
     cp $LOG_DIR/gpu_info.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
 else
     echo "Training was interrupted, job will be requeued if possible"

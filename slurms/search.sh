@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --account=soc-gpu-np
-#SBATCH --partition=soc-gpu-np
+#SBATCH --account=yqu-gpu-np
+#SBATCH --partition=yqu-gpu-np
 #SBATCH --job-name=mars_clip_search
 #SBATCH --time=4:00:00
 #SBATCH --ntasks=8

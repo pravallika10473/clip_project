@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import torch.nn.functional as F
-import Path
+from pathlib import Path
 
 logging.set_verbosity_error()
 
@@ -254,7 +254,7 @@ def main():
         
         if val_loss < best_dev_score:
             best_dev_score = val_loss
-            torch.save(model.state_dict(), "best_model.pt")
+            torch.save(model.state_dict(), "clip_best_model.pt")
             nb_bad_epochs = 0
             print(f"New best model saved! Val Loss: {val_loss:.4f}")
         else:

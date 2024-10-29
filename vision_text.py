@@ -201,7 +201,7 @@ def main():
         
         if val_loss < best_dev_score:
             best_dev_score = val_loss
-            torch.save(clip.state_dict(), "best_model.pt")
+            torch.save(clip.state_dict(), "vision_text_best_model.pt")
             nb_bad_epochs = 0
             print(f"New best model saved! Val Loss: {val_loss:.4f}")
         else:

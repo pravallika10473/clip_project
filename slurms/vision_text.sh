@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --account=soc-gpu-np
-#SBATCH --partition=soc-gpu-np
+#SBATCH --account=yqu-gpu-np
+#SBATCH --partition=yqu-gpu-np
 #SBATCH --job-name=mars_vision_text_training
 #SBATCH --time=12:00:00
 #SBATCH --ntasks=8
@@ -44,7 +44,7 @@ pip list
 nvidia-smi > $LOG_DIR/gpu_info.txt 2>&1
 
 # Run training
-python vision_text.py > >(tee -a $LOG_DIR/vision_text_training_output.txt) 2>&1
+python ~/clip_project/vision_text.py > >(tee -a $LOG_DIR/vision_text_training_output.txt) 2>&1
 
 # Check if the job completed successfully
 if [ $? -eq 0 ]; then
@@ -52,7 +52,7 @@ if [ $? -eq 0 ]; then
     
     # Copy results back only if training was successful
     mkdir -p /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
-    cp best_model.pt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/vision_text_best_model.pt
+    cp vision_text_best_model.pt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
     cp $LOG_DIR/vision_text_training_output.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
     cp $LOG_DIR/gpu_info.txt /uufs/chpc.utah.edu/common/home/$USER/clip_project/outputs/
 else
